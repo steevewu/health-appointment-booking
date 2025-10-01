@@ -19,6 +19,7 @@ cp .env.example .env
 Modify the database credentials in `.env` as yours, then run:
 
 ```bash
-php artisan migrate:fresh
+php artisan key:generate
+php artisan migration:fresh
 php artisan serve
 ```
