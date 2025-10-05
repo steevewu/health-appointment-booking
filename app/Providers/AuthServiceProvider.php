@@ -30,10 +30,10 @@ class AuthServiceProvider extends ServiceProvider
             ->markdown('emails.verify', ['url' => $url]);
         });
 
-        ResetPassword::toMailUsing(function(object $notifiable, string $url){
+        ResetPassword::toMailUsing(function(object $notifiable, string $token){
             return (new MailMessage)
             ->subject('Phenikaa Clinic | Yêu cầu Đặt lại Mật khẩu Tài khoản của Bạn')
-            ->markdown('emails.recovery', ['url' => $url]);
+            ->markdown('emails.recovery', ['url' => url(config('app.url').route('password.reset', $token, false))]);
         });
         
     }

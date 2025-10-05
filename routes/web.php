@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
@@ -22,7 +23,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    if(auth()->user()->hasRole('admin')) return redirect()->route('admin.dashboard');
+    if(auth()->user()->hasRole('admin')) return redirect()->route('filament.admin.pages.dashboard');
     if(auth()->user()->hasRole('doctor')) return redirect()->route('doctor.dashboard');
     return redirect()->route('patient.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -43,9 +44,13 @@ Route::group(
 
 
         // admin stuff
-        Route::get('/', function(){
-            return view('admin.dashboard');
-        })->name('admin.dashboard');
+        // Route::get('/', function(){
+        //     return view('admin.dashboard');
+        // })->name('admin.dashboard');
+
+        Filament::getPanel('admin', true)->getRoutes();
+        
+
     }
 );
 
@@ -75,6 +80,17 @@ Route::group([
         Route::get('/', function(){
             return view('patient.dashboard');
         })->name('patient.dashboard');
+});
+
+
+
+Route::get('/test', function(){
+    User::create(
+        [
+            'email' => 'admin@pka.com',
+            'password' => 'admin'
+        ]
+    )->assignRole('admin')->forceFill(['email_verified_at' => Date::now()])->save();
 });
 
 
