@@ -17,7 +17,7 @@ class Patient extends Model
         'firstname',
         'lastname',
         'dob',
-        'ward_id'
+        'address'
     ];
 
     public function user(): BelongsTo{

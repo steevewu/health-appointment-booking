@@ -20,7 +20,6 @@ class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
 
     public static function getModelLabel(): string
@@ -33,10 +32,14 @@ class DepartmentResource extends Resource
     {
         return __('filament::resources.departments.plural_label');
     }
+
+
     public static function getNavigationLabel(): string
     {
-        return __('filament::resources.departments.navigation_label');
+        return __('filament::resources.navigation_label', ['model' => DepartmentResource::getModelLabel()]);
     }
+
+
     public static function getNavigationIcon(): string|Htmlable|null
     {
         return 'heroicon-o-user-group';
@@ -60,14 +63,14 @@ class DepartmentResource extends Resource
                     ->required()
                     ->maxLength(50)
                     ->minLength(10)
-                    ->label(__('Tên khoa')),
+                    ->label(__('filament::resources.full_name', ['model' => DepartmentResource::getModelLabel()])),
                 Forms\Components\TextInput::make('alias')
                     ->required()
                     ->maxLength(15)
                     ->minLength(2)
-                    ->label(__('Tên viết tắt')),
+                    ->label(__('filament::resources.alias', ['model' => DepartmentResource::getModelLabel()])),
                 Forms\Components\MarkdownEditor::make('description')
-                    ->label('Mô tả về khoa')
+                    ->label(__('filament::resources.description', ['model' => DepartmentResource::getModelLabel()]))
                     ->columnSpanFull(),
             ]);
     }

@@ -18,7 +18,8 @@ class Doctor extends Model
         'firstname',
         'lastname',
         'dob',
-        'ward_id'
+        'address',
+        'phone_number'
     ];
 
 
