@@ -4,8 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Workshift extends Model
 {
     use HasFactory;
+
+
+
+    public function doctor(): BelongsTo{
+        return $this->belongsTo(Doctor::class, 'doctor_id', 'id');
+    }
 }

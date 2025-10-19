@@ -11,7 +11,7 @@
         "guava/filament-clusters": "*",
         "guzzlehttp/guzzle": "^7.2",
         "jacobtims/inline-date-time-picker": "*",
-        "jeffgreco13/filament-breezy": "*",
+        "jeffgreco13/filament-breezy": "^2.6",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
