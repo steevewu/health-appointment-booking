@@ -7,6 +7,10 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 
+use App\Livewire\Auth\Login;
+use App\Livewire\Auth\Register;
+use App\Livewire\Pages\HomePage;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -18,9 +22,12 @@ use Spatie\Permission\Models\Role;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+Route::get('/', HomePage::class)->name('home');
+
 
 Route::get('/dashboard', function () {
     if(auth()->user()->hasRole('admin')) return redirect()->route('filament.admin.pages.dashboard');
