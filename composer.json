@@ -17,6 +17,7 @@
         "laravel/tinker": "^2.8",
         "saade/filament-fullcalendar": "^3.0",
         "spatie/laravel-permission": "^6.21",
+        "staudenmeir/belongs-to-through": "^2.15",
         "ysfkaya/filament-phone-input": "^3.0"
     },
     "require-dev": {

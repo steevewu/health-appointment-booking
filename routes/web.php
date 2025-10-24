@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Models\Event;
 use App\Models\User;
+use App\Models\Workshift;
 use App\Services\AddressResolver;
+use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Route;
@@ -24,7 +27,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    
+
 
     $route = 'filament.patient.pages.dashboard';
 
@@ -67,8 +70,24 @@ Route::get('/dashboard', function () {
 
 
 
-Route::get('/test', function(){
-    dd(AddressResolver::resolveName('1|1|1'));
+Route::get('/test', function () {
+
+
+
+
+    $workshift = Workshift::firstOrNew(
+        [
+            'event_id' => 7,
+            'doctor_id' => 1
+        ],
+        []
+    );
+    dd($workshift->exists);
+
+
+
+
+
 });
 
 

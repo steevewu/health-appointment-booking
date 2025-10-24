@@ -31,26 +31,23 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->plugins(
                 [
-                    FilamentFullCalendarPlugin::make()
-                    ->selectable()
-                    ->editable(),
                     BreezyCore::make()
-                    ->myProfile(
-                        shouldRegisterUserMenu:false,
-                        shouldRegisterNavigation:true,
-                        hasAvatars:false,
-                        navigationGroup:'Settings'
-                    )
-                    ->withoutMyProfileComponents(
-                        [
-                            "personal_info"
-                        ]
-                    )
-                    ->myProfileComponents(
-                        [
-                            UserProfile::class,
-                        ]
-                    )
+                        ->myProfile(
+                            shouldRegisterUserMenu: false,
+                            shouldRegisterNavigation: true,
+                            hasAvatars: false,
+                            navigationGroup: 'Settings'
+                        )
+                        ->withoutMyProfileComponents(
+                            [
+                                "personal_info"
+                            ]
+                        )
+                        ->myProfileComponents(
+                            [
+                                UserProfile::class,
+                            ]
+                        )
                 ]
             )
             ->colors([

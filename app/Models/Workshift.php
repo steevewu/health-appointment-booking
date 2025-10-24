@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 
 class Workshift extends Model
 {
@@ -12,25 +13,43 @@ class Workshift extends Model
 
 
 
-    public static function isConflict($start, $end, $doctor_id): bool{
+    public static function isConflict($start, $end, $doctor_id): bool
+    {
 
         return Workshift::where('doctor_id', $doctor_id)
             ->whereHas('event', function ($query) use ($start, $end) {
                 $query->where('start_at', '<', $end)
-                      ->where('end_at', '>', $start);
+                    ->where('end_at', '>', $start);
             })
             ->exists();
     }
-    
 
 
-    public function doctor(): BelongsTo{
+
+    public function doctor(): BelongsTo
+    {
         return $this->belongsTo(Doctor::class, 'doctor_id', 'id');
     }
 
 
-    public function event(): BelongsTo{
+    public function event(): BelongsTo
+    {
         return $this->belongsTo(Event::class, 'event_id', 'id');
     }
-    
+
+
+    public function appointments(string|null $status = null): HasOneOrMany
+    {
+        return $this->hasMany(Appointment::class, 'workshift_id', 'id')
+            ->where('status', $status ?? 'pending');
+    }
+
+
+    public function isBooked(): bool
+    {
+        return $this->appointments()
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->exists();
+    }
+
 }

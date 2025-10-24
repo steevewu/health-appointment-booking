@@ -105,7 +105,8 @@ class DepartmentResource extends Resource
                             ->markdown(),
                     ])
                     ->modalSubmitAction(false) // Hide the Save/Submit button
-                    ->modalCancelActionLabel('Close'), // Rename the Cancel button
+                    ->modalCancelActionLabel('Close')
+                    ->modalAlignment('center'), // Rename the Cancel button
 
             ])
             ->bulkActions([

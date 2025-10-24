@@ -30,6 +30,10 @@ class Event extends Model
         })->exists();
     }
 
+    // public static function isConflict(Event $event1, Event $event2): bool{
+    //     return 
+    // }
+
     public function workshifts(): HasMany{
         return $this->hasMany(Workshift::class, 'event_id', 'id');
     }

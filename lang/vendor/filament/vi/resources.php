@@ -44,6 +44,7 @@ return [
         'label' => 'Bác Sĩ',
         'plural_label' => 'Bác Sĩ',
         'group' => 'Hehe',
+        'belongs_depart' => 'Khoa trực thuộc'
 
     ],
 

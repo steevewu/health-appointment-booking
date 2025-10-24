@@ -9,7 +9,7 @@ use App\Notifications\SteeveNotification;
 use Carbon\Carbon;
 use DB;
 use Exception;
-use Filament\Notifications\Notification;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
 use Saade\FilamentFullCalendar\Actions;
 use Filament\Forms;
@@ -21,6 +21,8 @@ class CalendarWidget extends FullCalendarWidget
 
 
     protected static bool $isDiscovered = false;
+
+
 
     public Model|string|null $model = Event::class;
 
@@ -37,6 +39,7 @@ class CalendarWidget extends FullCalendarWidget
                     'title' => $event->title,
                     'start' => $event->start_at,
                     'end' => $event->end_at,
+                    'description' => $event->description
                 ]
             )
             ->all();
@@ -55,8 +58,12 @@ class CalendarWidget extends FullCalendarWidget
             $this->record = $this->resolveRecord($event['id']);
         }
 
+
+
+        $viewType = Filament::getCurrentPanel()->getId() === 'scheduler' ? 'edit' : 'view';
+
         $this->mountAction(
-            'edit', // default: 'view'
+            $viewType, // default: 'view'
             [
                 'type' => 'click',
                 'event' => $event,
@@ -86,7 +93,6 @@ class CalendarWidget extends FullCalendarWidget
                     try {
 
 
-
                         DB::transaction(function () use ($data) {
                             $start = Carbon::parse($data['start_at']);
                             $end = Carbon::parse($data['end_at']);
@@ -95,7 +101,6 @@ class CalendarWidget extends FullCalendarWidget
                             // check for conflict or overlap event
                             if (Event::isConflict($start, $end))
                                 throw new Exception(__('filament::resources.time_conflict'));
-
 
 
                             $doctors = $data['doctors'];
@@ -110,7 +115,6 @@ class CalendarWidget extends FullCalendarWidget
 
 
                             $event->save();
-
 
                             foreach ($doctors as $doctor_id) {
 
@@ -136,13 +140,14 @@ class CalendarWidget extends FullCalendarWidget
 
                         SteeveNotification::sendSuccessNotification(action: $action);
 
-
-
                     } catch (Exception $e) {
                         SteeveNotification::sendFailedNotification(message: $e->getMessage());
                     }
                 })
                 ->successNotificationMessage(null)
+                ->visible(
+                    fn() => Filament::getCurrentPanel()->getId() === 'scheduler'
+                )
         ];
     }
 
@@ -165,85 +170,131 @@ class CalendarWidget extends FullCalendarWidget
                         ]);
                     }
                 )
-                ->using(function (array $data, Event $record, Action $action) {
+                ->mutateFormDataUsing(
+                    function (array $data): array {
 
-                    try {
-                        DB::transaction(
-                            function () use ($data, $record) {
+                        $data['start_at'] = Carbon::parse($data['start_at'])->seconds(0)->format('Y-m-d H:i:s');
+                        $data['end_at'] = Carbon::parse($data['end_at'])->seconds(0)->format('Y-m-d H:i:s');
 
-
-                                $start = Carbon::parse($data['start_at']);
-                                $end = Carbon::parse($data['end_at']);
-
-
-                                if (Event::isConflict($start, $end))
-                                    throw new Exception(__('filament::resources.time_conflict'));
-                                
-                                
-                                
-                                $record->update([
-                                    'title' => $data['title'],
-                                    'start_at' => $data['start_at'],
-                                    'end_at' => $data['end_at'],
-                                    'description' => $data['description'],
-                                ]);
+                        return $data;
+                    }
+                )
+                ->using(
+                    function (array $data, Event $record, Action $action) {
 
 
+                        try {
+                            DB::transaction(
 
-
-                                $record->workshifts()->delete(); // soft delete in order to update
-            
-
-                                // re-create workshifts
-                                foreach ($data['doctors'] as $doctor_id) {
-                                    
-                                    
-                                    // check if doctor already has a workshift on this period
-                                    if (Workshift::isConflict($start, $end, $doctor_id))
-                                        throw new Exception(__('filament::resources.doctor_conflict'));
-
-
-
-                                    $workshift = new Workshift();
-
-                                    $workshift->forceFill(
+                                function () use ($data, $record) {
+                                    $record->fill(
                                         [
-                                            'event_id' => $record->id,
-                                            'doctor_id' => $doctor_id
+                                            'title' => $data['title'],
+                                            'start_at' => $data['start_at'],
+                                            'end_at' => $data['end_at'],
+                                            'description' => $data['description']
                                         ]
                                     );
 
-                                    $workshift->save();
+                                    if ($record->isDirty(['start_at', 'end_at']) && Event::isConflict($data['start_at'], $data['end_at']))
+                                        throw new Exception(__('filament::resources.time_conflict'));
+
+
+
+                                    // check if dropped doctors are already have appoitments
+                
+                                    $dropped_doctors = array_diff($record->workshifts()->pluck('doctor_id')->toArray(), $data['doctors']);
+
+                                    foreach ($dropped_doctors as $doctor) {
+
+                                        $workshift = Workshift::where('event_id', $record->id)
+                                            ->where('doctor_id', $doctor)
+                                            ->first();
+
+                                        if ($workshift->exists && $workshift->isBooked())
+                                            throw new Exception(__('filament::resources.appointments.already_booked'));
+
+                                        $workshift->delete();
+
+                                    }
+
+
+                                    // re-create workshifts
+                                    foreach ($data['doctors'] as $doctor_id) {
+
+                                        $workshift = Workshift::firstOrNew(
+                                            [
+                                                'event_id' => $record->id,
+                                                'doctor_id' => $doctor_id
+                                            ],
+                                            []
+                                        );
+
+
+
+                                        if (!$workshift->exists) {
+
+
+                                            // check if doctor already has a workshift on this period
+                                            if (Workshift::isConflict($data['start_at'], $data['end_at'], $doctor_id))
+                                                throw new Exception(__('filament::resources.doctor_conflict' . "{$doctor_id}"));
+
+
+                                            $workshift->forceFill(
+                                                [
+                                                    'event_id' => $record->id,
+                                                    'doctor_id' => $doctor_id
+
+                                                ]
+                                            );
+                                        }
+
+                                        $workshift->save();
+                                        $record->save();
+
+                                    }
+
 
                                 }
+                            );
 
-
-                            }
-                        );
-
-
-
-                        SteeveNotification::sendSuccessNotification(action: $action);
-
-
-
-
-                    } catch (Exception $e) {
-
-
-                        SteeveNotification::sendFailedNotification(message: $e->getMessage());
+                            SteeveNotification::sendSuccessNotification(action: $action);
+                        } catch (Exception $e) {
+                            SteeveNotification::sendFailedNotification(message: $e->getMessage());
+                        }
 
                     }
-
-                })
-                ->successNotificationMessage(null),
-            Actions\DeleteAction::make(),
+                )
+                ->successNotificationMessage(null)
+                ->extraModalActions(
+                    [
+                        Actions\DeleteAction::make()
+                    ]
+                ),
         ];
     }
 
+
+
+
     protected function viewAction(): Action
     {
-        return Actions\ViewAction::make();
+        return Actions\ViewAction::make()
+            ->mountUsing(
+                function (Event $record, Forms\Form $form, array $arguments) {
+
+                    $form->fill([
+                        'title' => $record->title,
+                        'start_at' => $arguments['event']['start'] ?? $record->start_at,
+                        'end_at' => $arguments['event']['end'] ?? $record->end_at,
+                        'description' => $record->description,
+                        'doctors' => $record->workshifts()->pluck('doctor_id')->toArray()
+                    ]);
+                }
+            )
+            ->modalFooterActions(
+                []
+            );
     }
 
     public function getFormSchema(): array
@@ -268,11 +319,16 @@ class CalendarWidget extends FullCalendarWidget
             Forms\Components\Grid::make()
                 ->schema([
                     Forms\Components\DateTimePicker::make('start_at')
-                        ->displayFormat('d M Y H:i')
-                        ->seconds(false),
+                        ->native(false)
+                        ->format('Y-m-d H:i:00')
+                        ->displayFormat('d/m/Y H:i')
+                        ->seconds(condition: false),
+
 
                     Forms\Components\DateTimePicker::make('end_at')
-                        ->displayFormat('d M Y H:i')
+                        ->native(false)
+                        ->format('Y-m-d H:i:00')
+                        ->displayFormat('d/m/Y H:i')
                         ->seconds(false),
                 ]),
             Forms\Components\MarkdownEditor::make('description')

@@ -34,9 +34,7 @@ class OfficerPanelProvider extends PanelProvider
             ])
             ->plugins(
                 [
-                    FilamentFullCalendarPlugin::make()
-                    ->selectable()
-                    ->editable(),
+                    FilamentFullCalendarPlugin::make(),
                     BreezyCore::make()
                     ->myProfile(
                         shouldRegisterUserMenu:false,
