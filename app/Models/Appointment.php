@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Workshift;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Appointment extends Model
 {
@@ -72,6 +73,11 @@ class Appointment extends Model
     public function getEvent(): Event
     {
         return $this->workshift->event;
+    }
+
+
+    public function treatment(): HasOne{
+        return $this->hasOne(Treatment::class, 'appointment_id', 'id');
     }
 
 

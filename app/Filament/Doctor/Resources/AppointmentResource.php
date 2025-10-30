@@ -5,6 +5,7 @@ namespace App\Filament\Doctor\Resources;
 use App\Filament\Doctor\Resources\AppointmentResource\Pages;
 use App\Filament\Doctor\Resources\AppointmentResource\RelationManagers;
 use App\Models\Appointment;
+use App\Models\Treatment;
 use App\Notifications\SteeveNotification;
 use Awcodes\FilamentBadgeableColumn\Components\Badge;
 use Awcodes\FilamentBadgeableColumn\Components\BadgeableColumn;
@@ -142,6 +143,15 @@ class AppointmentResource extends Resource
                                                 'status' => 'confirmed'
                                             ]
                                         );
+
+                                        $treatment = new Treatment();
+
+                                        $treatment->forceFill(
+                                            [
+                                                'appointment_id' => $record->id,
+                                            ]
+                                        );
+                                        $treatment->save();
                                         $record->save();
                                     }
                                 );
@@ -182,6 +192,65 @@ class AppointmentResource extends Resource
                     ->requiresConfirmation()
                     ->successNotificationMessage(null)
                     ->failureNotificationMessage(null),
+                Tables\Actions\Action::make('create-treatment')
+                ->icon('heroicon-o-pencil-square')
+                ->label(__('filament::resources.'))
+                ->form(
+                    [
+                        Forms\Components\MarkdownEditor::make('notes')
+                        ->nullable()
+                        ->label(__('filament::resources.')),
+                        Forms\Components\MarkdownEditor::make('medication')
+                        ->nullable()
+                        ->label(__('filament::resources.')),
+
+                    ]
+                )
+                ->mountUsing(
+                    function(Forms\ComponentContainer $form, Tables\Actions\Action $action, Model $record){
+                        $treatment = $record->treatment;
+
+
+                        $form->fill(
+                            [
+                                'notes' => $treatment->notes,
+                                'medication' => $treatment->medication
+                            ]
+                        );
+
+                    }
+                )
+                ->action(
+                    function (Model $record, array $data){
+                        try{
+                        
+                            DB::transaction(
+                                function () use ($record, $data){
+
+                                    $treatment = $record->treatment;
+
+                                    $treatment->fill(
+                                        [
+                                            'notes' => $data['notes'],
+                                            'medication' => $data['medication']
+                                        ]
+                                    );
+
+                                    $treatment->save();
+                                    
+                                }
+                            );
+                        
+                            SteeveNotification::sendSuccessNotification();
+                        }
+                        catch (Exception $e){
+                            SteeveNotification::sendFailedNotification(message: $e->getMessage());
+                        }
+                    }
+                )
+                ->modalAlignment('center')
+                ->modalWidth('xl')
+                
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -198,8 +267,17 @@ class AppointmentResource extends Resource
     }
 
 
-    public static function query(): Builder
+    public static function getEloquentQuery(): Builder
     {
-        return parent::query()->with('workshift.event');
+        $doctor = auth()->user()->doctor;
+
+        if (!$doctor)
+            return parent::getEloquentQuery()->whereRaw('1 = 0');
+
+        return parent::getEloquentQuery()
+            ->whereHas('workshift', function (Builder $query) use ($doctor) {
+                $query->where('doctor_id', $doctor->id);
+            })
+            ->with('workshift.event');
     }
 }
