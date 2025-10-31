@@ -20,6 +20,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 
 class OfficerPanelProvider extends PanelProvider
@@ -36,23 +37,24 @@ class OfficerPanelProvider extends PanelProvider
                 [
                     FilamentFullCalendarPlugin::make(),
                     BreezyCore::make()
-                    ->myProfile(
-                        shouldRegisterUserMenu:false,
-                        shouldRegisterNavigation:true,
-                        hasAvatars:false,
-                        navigationGroup:'Settings'
-                    )
-                    ->myProfileComponents(
-                        [
-                            UserProfile::class,
-                            UserAddress::class,
-                        ]
-                    )
-                    ->withoutMyProfileComponents(
-                        [
-                            'personal_info'
-                        ]
-                    )
+                        ->myProfile(
+                            shouldRegisterUserMenu: false,
+                            shouldRegisterNavigation: true,
+                            hasAvatars: false,
+                            navigationGroup: 'Settings'
+                        )
+                        ->myProfileComponents(
+                            [
+                                UserProfile::class,
+                                UserAddress::class,
+                            ]
+                        )
+                        ->withoutMyProfileComponents(
+                            [
+                                'personal_info'
+                            ]
+                        ),
+                    FilamentApexChartsPlugin::make()
                 ]
             )
             ->discoverResources(in: app_path('Filament/Officer/Resources'), for: 'App\\Filament\\Officer\\Resources')
@@ -63,7 +65,6 @@ class OfficerPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Officer/Widgets'), for: 'App\\Filament\\Officer\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

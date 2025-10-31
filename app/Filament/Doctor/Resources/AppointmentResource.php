@@ -108,8 +108,8 @@ class AppointmentResource extends Resource
                     ->icon(
                         fn(Model $record) => match ($record->status) {
                             'pending' => 'heroicon-o-clock',
-                            'confirmed' => 'heroicon-o-check-circle',
-                            'canceled' => 'heroicon-o-x-circle',
+                            'confirmed' => 'heroicon-o-check',
+                            'canceled' => 'heroicon-o-x-mark',
                             default => 'heroicon-o-question-mark-circle',
                         }
                     )
@@ -130,7 +130,7 @@ class AppointmentResource extends Resource
                 // Tables\Actions\DeleteAction::make(),
                 Tables\Actions\Action::make('confirm')
                     ->label(__('filament::resources.appointments.confirm'))
-                    ->icon('heroicon-o-check-circle')
+                    ->icon('heroicon-o-check')
                     ->color('success')
                     ->visible(fn(Model $record) => $record->status === 'pending')
                     ->action(
@@ -166,7 +166,7 @@ class AppointmentResource extends Resource
                     ->failureNotificationMessage(null),
                 Tables\Actions\Action::make('cancel')
                     ->label(__('filament::resources.appointments.cancel'))
-                    ->icon('heroicon-o-x-circle')
+                    ->icon('heroicon-o-x-mark')
                     ->color('danger')
                     ->visible(fn(Model $record) => $record->status === 'pending')
                     ->action(
@@ -193,70 +193,69 @@ class AppointmentResource extends Resource
                     ->successNotificationMessage(null)
                     ->failureNotificationMessage(null),
                 Tables\Actions\Action::make('create-treatment')
-                ->icon('heroicon-o-pencil-square')
-                ->label(__('filament::resources.'))
-                ->form(
-                    [
-                        Forms\Components\MarkdownEditor::make('notes')
-                        ->nullable()
-                        ->label(__('filament::resources.')),
-                        Forms\Components\MarkdownEditor::make('medication')
-                        ->nullable()
-                        ->label(__('filament::resources.')),
+                    ->icon('heroicon-o-newspaper')
+                    ->label(__('filament::resources.'))
+                    ->form(
+                        [
+                            Forms\Components\MarkdownEditor::make('notes')
+                                ->nullable()
+                                ->label(__('filament::resources.')),
+                            Forms\Components\MarkdownEditor::make('medication')
+                                ->nullable()
+                                ->label(__('filament::resources.')),
 
-                    ]
-                )
-                ->mountUsing(
-                    function(Forms\ComponentContainer $form, Tables\Actions\Action $action, Model $record){
-                        $treatment = $record->treatment;
+                        ]
+                    )
+                    ->mountUsing(
+                        function (Forms\ComponentContainer $form, Tables\Actions\Action $action, Model $record) {
+                            $treatment = $record->treatment;
 
 
-                        $form->fill(
-                            [
-                                'notes' => $treatment->notes,
-                                'medication' => $treatment->medication
-                            ]
-                        );
-
-                    }
-                )
-                ->action(
-                    function (Model $record, array $data){
-                        try{
-                        
-                            DB::transaction(
-                                function () use ($record, $data){
-
-                                    $treatment = $record->treatment;
-
-                                    $treatment->fill(
-                                        [
-                                            'notes' => $data['notes'],
-                                            'medication' => $data['medication']
-                                        ]
-                                    );
-
-                                    $treatment->save();
-                                    
-                                }
+                            $form->fill(
+                                [
+                                    'notes' => $treatment->notes,
+                                    'medication' => $treatment->medication
+                                ]
                             );
-                        
-                            SteeveNotification::sendSuccessNotification();
+
                         }
-                        catch (Exception $e){
-                            SteeveNotification::sendFailedNotification(message: $e->getMessage());
+                    )
+                    ->action(
+                        function (Model $record, array $data) {
+                            try {
+
+                                DB::transaction(
+                                    function () use ($record, $data) {
+
+                                        $treatment = $record->treatment;
+
+                                        $treatment->fill(
+                                            [
+                                                'notes' => $data['notes'],
+                                                'medication' => $data['medication']
+                                            ]
+                                        );
+
+                                        $treatment->save();
+
+                                    }
+                                );
+
+                                SteeveNotification::sendSuccessNotification();
+                            } catch (Exception $e) {
+                                SteeveNotification::sendFailedNotification(message: $e->getMessage());
+                            }
                         }
-                    }
-                )
-                ->modalAlignment('center')
-                ->modalWidth('xl')
-                
+                    )
+                    ->modalAlignment('center')
+                    ->modalWidth('xl')
+
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+                    Tables\Actions\BulkActionGroup::make([
+                        Tables\Actions\DeleteBulkAction::make(),
+                    ]),
+                ]);
     }
 
     public static function getPages(): array
