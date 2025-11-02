@@ -38,13 +38,6 @@ class CalendarWidget extends FullCalendarWidget
     public function fetchEvents(array $fetchInfo): array
     {
 
-        // dd(Event::query()
-        //     ->join('workshifts', 'workshifts.event_id', '=', 'events.id')
-        //     ->where('workshifts.doctor_id', '=', $this->doctor_id)
-        //     ->where('start_at', '>=', $fetchInfo['start'])
-        //     ->where('end_at', '<=', $fetchInfo['end'])
-        //     ->select(['events.*', 'workshifts.id as workshift_id'])
-        //     ->get());
         return Event::query()
             ->join('workshifts', 'workshifts.event_id', '=', 'events.id')
             ->where('workshifts.doctor_id', '=', $this->doctor_id)
@@ -68,18 +61,6 @@ class CalendarWidget extends FullCalendarWidget
 
 
 
-    // public function headerActions(): array{
-    //     return [
-    //         Forms\Components\Select::make('hehe')
-    //         ->options(
-    //             [
-    //                 1 => '1',
-    //                 2 => '2',
-    //                 3 => '3'
-    //             ]
-    //         )
-    //     ];
-    // }
 
 
     public function headerActions(): array
@@ -143,8 +124,13 @@ class CalendarWidget extends FullCalendarWidget
                                 DB::transaction(
                                     function () use ($data, $record, $action) {
 
+                                        $activeAppointment = Appointment::where('workshift_id', $data['workshift_id'])
+                                            ->whereIn('status', ['pending', 'confirmed'])
+                                            ->lockForUpdate()
+                                            ->first();
 
-                                        if (Appointment::isConflict(auth()->user()->patient->id, $data['workshift_id']))
+
+                                        if (Appointment::isConflict(auth()->user()->patient->id, $data['workshift_id']) || $activeAppointment)
                                             throw new Exception(__('filament::resources.appointments.conflict'));
 
 

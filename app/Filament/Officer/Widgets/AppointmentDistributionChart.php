@@ -4,6 +4,8 @@ namespace App\Filament\Officer\Widgets;
 
 use DB;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
+use Filament\Forms;
+
 
 class AppointmentDistributionChart extends ApexChartWidget
 {
@@ -20,11 +22,39 @@ class AppointmentDistributionChart extends ApexChartWidget
         return __('filament::charts.heeh');
     }
 
+
+    protected function getFormSchema(): array
+    {
+        return [
+            Forms\Components\Select::make('year')
+                ->label(__('filament::charts.hahe'))
+                ->options(
+                    function () {
+                        $minYear = DB::table('events')->min(DB::raw('YEAR(start_at)')) ?? 2020;
+                        $maxYear = now()->year;
+
+                        $intYears = range($minYear, $maxYear);
+                        $yearMap = array_combine(
+                            $intYears,
+                            array_map('strval', $intYears)
+                        );
+                        return $yearMap;
+                    }
+                )
+                ->default(now()->year)
+                ->live()
+                ->afterStateUpdated(function () {
+                    $this->updateOptions();
+                }),
+        ];
+    }
     protected function getOptions(): array
     {
         if (!$this->readyToLoad) {
             return [];
         }
+
+        $yearFilter = $this->filterFormData['year'];
 
         $appointmentCounts = DB::table('departments')
             ->select([
@@ -34,8 +64,12 @@ class AppointmentDistributionChart extends ApexChartWidget
             ->leftJoin('doctors', 'doctors.depart_id', '=', 'departments.id')
             ->leftJoin('workshifts', 'workshifts.doctor_id', '=', 'doctors.id')
             ->leftJoin('appointments', 'appointments.workshift_id', '=', 'workshifts.id')
+            ->leftJoin('events', 'workshifts.event_id', '=', 'events.id')
+            ->whereYear('events.start_at', $yearFilter)
             ->groupBy('departments.id', 'departments.name')
             ->get();
+
+            
         return [
             'chart' => [
                 'type' => 'polarArea',
@@ -51,6 +85,10 @@ class AppointmentDistributionChart extends ApexChartWidget
             ],
             'dataLabels' => [
                 'enabled' => true,
+            ],
+            'title' => [
+                'text' => "{$yearFilter}",
+                'align' => 'left'
             ],
             'yaxis' => [
                 'labels' => [

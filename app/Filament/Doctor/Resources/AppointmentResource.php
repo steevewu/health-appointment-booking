@@ -90,7 +90,7 @@ class AppointmentResource extends Resource
                     ->badge()
                     ->disableClick()
                     ->getStateUsing(
-                        fn(Model $record) => match ($record->status) {
+                        fn(Appointment $record) => match ($record->status) {
                             'pending' => __('filament::resources.appointments.pending'),
                             'confirmed' => __('filament::resources.appointments.confirmed'),
                             'canceled' => __('filament::resources.appointments.canceled'),
@@ -98,7 +98,7 @@ class AppointmentResource extends Resource
                         }
                     )
                     ->color(
-                        fn(Model $record) => match ($record->status) {
+                        fn(Appointment $record) => match ($record->status) {
                             'pending' => 'warning',
                             'confirmed' => 'success',
                             'canceled' => 'danger',
@@ -106,7 +106,7 @@ class AppointmentResource extends Resource
                         }
                     )
                     ->icon(
-                        fn(Model $record) => match ($record->status) {
+                        fn(Appointment $record) => match ($record->status) {
                             'pending' => 'heroicon-o-clock',
                             'confirmed' => 'heroicon-o-check',
                             'canceled' => 'heroicon-o-x-mark',
@@ -132,9 +132,9 @@ class AppointmentResource extends Resource
                     ->label(__('filament::resources.appointments.confirm'))
                     ->icon('heroicon-o-check')
                     ->color('success')
-                    ->visible(fn(Model $record) => $record->status === 'pending')
+                    ->visible(fn(Appointment $record) => $record->status === 'pending')
                     ->action(
-                        function (Model $record) {
+                        function (Appointment $record) {
                             try {
                                 DB::transaction(
                                     function () use ($record) {
@@ -143,6 +143,15 @@ class AppointmentResource extends Resource
                                                 'status' => 'confirmed'
                                             ]
                                         );
+
+                                        $record->workshift->appointments()
+                                            ->where('id', '!=', $record->id)
+                                            ->where('status', 'pending')
+                                            ->update(
+                                                [
+                                                    'status' => 'canceled'
+                                                ]
+                                            );
 
                                         $treatment = new Treatment();
 
@@ -168,9 +177,9 @@ class AppointmentResource extends Resource
                     ->label(__('filament::resources.appointments.cancel'))
                     ->icon('heroicon-o-x-mark')
                     ->color('danger')
-                    ->visible(fn(Model $record) => $record->status === 'pending')
+                    ->visible(fn(Appointment $record) => $record->status === 'pending')
                     ->action(
-                        function (Model $record) {
+                        function (Appointment $record) {
                             try {
                                 DB::transaction(
                                     function () use ($record) {
@@ -207,7 +216,7 @@ class AppointmentResource extends Resource
                         ]
                     )
                     ->mountUsing(
-                        function (Forms\ComponentContainer $form, Tables\Actions\Action $action, Model $record) {
+                        function (Forms\ComponentContainer $form, Tables\Actions\Action $action, Appointment $record) {
                             $treatment = $record->treatment;
 
 
@@ -221,7 +230,7 @@ class AppointmentResource extends Resource
                         }
                     )
                     ->action(
-                        function (Model $record, array $data) {
+                        function (Appointment $record, array $data) {
                             try {
 
                                 DB::transaction(
@@ -249,13 +258,16 @@ class AppointmentResource extends Resource
                     )
                     ->modalAlignment('center')
                     ->modalWidth('xl')
+                    ->visible(
+                        fn(Appointment $record) => $record->status === 'confirmed'
+                    )
 
             ])
             ->bulkActions([
-                    Tables\Actions\BulkActionGroup::make([
-                        Tables\Actions\DeleteBulkAction::make(),
-                    ]),
-                ]);
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getPages(): array

@@ -11,6 +11,11 @@ class Workshift extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'event_id',
+        'doctor_id'
+    ];
+
 
 
     public static function isConflict($start, $end, $doctor_id): bool

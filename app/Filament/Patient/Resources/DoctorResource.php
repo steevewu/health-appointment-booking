@@ -89,6 +89,7 @@ class DoctorResource extends Resource
                     ->options(
                         fn() => Department::all()->pluck('name', 'id')->all()
                     )
+                    ->searchable()
                     ->placeholder(__('filament::resources.departments.place_holder'))
                     ->label(__('filament::resources.departments.label'))
             ])
