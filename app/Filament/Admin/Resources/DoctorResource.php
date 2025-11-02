@@ -35,7 +35,7 @@ class DoctorResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('filament::resources.navigation_label', ['model' => DoctorResource::getModelLabel()]);
+        return __('filament::resources.doctors.label');
     }
 
 
@@ -49,8 +49,8 @@ class DoctorResource extends Resource
     {
         return __('filament::resources.doctors.group');
     }
-    
-    
+
+
 
     public static function form(Form $form): Form
     {
@@ -84,6 +84,11 @@ class DoctorResource extends Resource
         return $table
             ->columns([
                 //
+                Tables\Columns\TextColumn::make('id')
+                    ->label(__('filament::resources.id_label'))
+                    ->disableClick()
+                    ->weight('bold')
+                    ->alignCenter(),
                 Tables\Columns\TextColumn::make('fullname')
                     ->label(__('filament::resources.full_name', ['model' => DoctorResource::getModelLabel()]))
                     ->disabledClick()
@@ -93,7 +98,7 @@ class DoctorResource extends Resource
                     ->label(__('filament::resources.email'))
                     ->disabledClick()
                     ->searchable()
-                    ->color('primary')
+                    ->color('info')
                     ->copyable()
             ])
             ->filters([
@@ -101,7 +106,8 @@ class DoctorResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->label(__('filament::resources.change_password'))
+                    ->label(__('filament::resources.change_pass'))
+                    ->icon('heroicon-o-key')
                     ->form(
                         [
 

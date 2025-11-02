@@ -33,7 +33,7 @@ class SchedulerResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('filament::resources.navigation_label', ['model' => SchedulerResource::getModelLabel()]);
+        return __('filament::resources.schedulers.label');
     }
 
 
@@ -53,7 +53,6 @@ class SchedulerResource extends Resource
         return $form
             ->schema([
                 //
-
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
@@ -82,6 +81,11 @@ class SchedulerResource extends Resource
         return $table
             ->columns([
                 //
+                Tables\Columns\TextColumn::make('id')
+                    ->label(__('filament::resources.id_label'))
+                    ->disableClick()
+                    ->weight('bold')
+                    ->alignCenter(),
                 Tables\Columns\TextColumn::make('fullname')
                     ->label(__('filament::resources.full_name', ['model' => SchedulerResource::getModelLabel()]))
                     ->searchable()
@@ -90,7 +94,7 @@ class SchedulerResource extends Resource
                 Tables\Columns\TextColumn::make('user.email')
                     ->label(__('filament::resources.email'))
                     ->searchable()
-                    ->color('primary')
+                    ->color('info')
                     ->disabledClick()
                     ->copyable()
             ])
@@ -99,7 +103,7 @@ class SchedulerResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->label(__('filament::resources.change_password'))
+                    ->label(__('filament::resources.change_pass'))
                     ->form(
                         [
 
@@ -122,16 +126,17 @@ class SchedulerResource extends Resource
                         ]
                     )
                     ->using(function (array $data, Model $record) {
-                        if(isset($data['new_password']) && !empty($data['new_password'])){
+                        if (isset($data['new_password']) && !empty($data['new_password'])) {
                             $record->user->update(
                                 [
                                     'password' => $data['new_password']
                                 ]
-                                );
+                            );
                         }
 
                         return $record;
-                    }),
+                    })
+                    ->icon('heroicon-o-key'),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

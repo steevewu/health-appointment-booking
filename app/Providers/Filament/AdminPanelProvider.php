@@ -7,6 +7,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationBuilder;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -35,11 +36,11 @@ class AdminPanelProvider extends PanelProvider
                 [
                     BreezyCore::make()
                         ->myProfile(
+                            hasAvatars: false,
                             shouldRegisterUserMenu: false,
                             shouldRegisterNavigation: true,
-                            hasAvatars: false,
-                            navigationGroup: 'Settings'
-                        )
+                            
+                            )
                         ->withoutMyProfileComponents(
                             [
                                 "personal_info"

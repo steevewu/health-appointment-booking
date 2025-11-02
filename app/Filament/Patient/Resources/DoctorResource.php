@@ -97,7 +97,7 @@ class DoctorResource extends Resource
                 Tables\Actions\Action::make('view-cv')
                     ->label('Xem CV')
                     ->icon('heroicon-o-eye')
-                    ->modalWidth('4xl') // Optional: Make the modal wider
+                    ->modalWidth('4xl')
                     ->fillForm(fn(Doctor $record): array => [
                         'description' => $record->fullname,
                     ])
@@ -106,7 +106,7 @@ class DoctorResource extends Resource
                             ->hiddenLabel()
                             ->markdown()
                     ])
-                    ->modalSubmitAction(false) // Hide the Save/Submit button
+                    ->modalSubmitAction(false) 
                     ->modalCancelActionLabel('Close')
                     ->modalAlignment('center'),
 

@@ -34,7 +34,7 @@ class OfficerResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('filament::resources.navigation_label', ['model' => OfficerResource::getModelLabel()]);
+        return __('filament::resources.officers.label');
     }
 
 
@@ -48,15 +48,14 @@ class OfficerResource extends Resource
     {
         return __('filament::resources.officers.group');
     }
-    
-    
+
+
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 //
-
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
@@ -84,6 +83,11 @@ class OfficerResource extends Resource
         return $table
             ->columns([
                 //
+                Tables\Columns\TextColumn::make('id')
+                    ->label(__('filament::resources.id_label'))
+                    ->disableClick()
+                    ->weight('bold')
+                    ->alignCenter(),
                 Tables\Columns\TextColumn::make('fullname')
                     ->label(__('filament::resources.full_name', ['model' => OfficerResource::getModelLabel()]))
                     ->searchable()
@@ -91,9 +95,9 @@ class OfficerResource extends Resource
                     ->placeholder('-'),
                 Tables\Columns\TextColumn::make('user.email')
                     ->label(__('filament::resources.email'))
+                    ->color('info')
                     ->searchable()
                     ->disabledClick()
-                    ->color('primary')
                     ->copyable()
             ])
             ->filters([
@@ -101,7 +105,7 @@ class OfficerResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->label(__('filament::resources.change_password'))
+                    ->label(__('filament::resources.change_pass'))
                     ->form(
                         [
 
@@ -133,7 +137,8 @@ class OfficerResource extends Resource
                         }
 
                         return $record;
-                    }),
+                    })
+                    ->icon('heroicon-o-key'),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

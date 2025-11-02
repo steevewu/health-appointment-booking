@@ -10,5 +10,16 @@ return [
     'change_appointment_label' => 'Ca Khám Bệnh Mới Trong Tháng',
     'change_appointment_description' => 'so với số lượng ca khám bệnh tháng trước',
     'increase' => 'đã tăng',
-    'decrease' => 'đã giảm'
+    'decrease' => 'đã giảm',
+
+    'appointments' => [
+        'label' => 'Buổi Khám Bệnh',
+        'group' => 'Nhóm chức năng báo cáo/ thống kê'
+    ],
+    
+    
+    'patients' => [
+        'label' => 'Bệnh Nhân',
+        'group' => 'Nhóm chức năng báo cáo/ thống kê'
+    ]
 ];

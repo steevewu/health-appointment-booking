@@ -5,6 +5,7 @@ namespace App\Filament\Officer\Resources;
 use App\Filament\Officer\Resources\DepartmentResource\Pages;
 use App\Filament\Officer\Resources\DepartmentResource\RelationManagers;
 use App\Models\Department;
+use Faker\Core\Color;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\TextEntry;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
+    protected static ?int $navigationSort = 1;
+
 
 
 
@@ -35,13 +38,13 @@ class DepartmentResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('filament::resources.navigation_label', ['model' => DepartmentResource::getModelLabel()]);
+        return __('filament::resources.departments.label');
     }
 
 
     public static function getNavigationIcon(): string|Htmlable|null
     {
-        return 'heroicon-o-user-group';
+        return 'heroicon-o-rectangle-stack';
     }
 
 
@@ -79,34 +82,51 @@ class DepartmentResource extends Resource
         return $table
             ->columns([
                 //
+                Tables\Columns\TextColumn::make('id')
+                    ->disableClick()
+                    ->weight('bold')
+                    ->alignCenter()
+                    ->label(__('filament::resources.id_label')),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->label('Tên khoa'),
+                    ->disableClick()
+                    ->label(__('filament::resources.name', ['model' => DepartmentResource::getModelLabel()])),
                 Tables\Columns\TextColumn::make('alias')
                     ->searchable()
-                    ->label('Tên viết tắt')
+                    ->weight('bold')
+                    ->color('primary')
+                    ->label(__('filament::resources.alias', ['model' => DepartmentResource::getModelLabel()]))
+                    ->disableClick(),
+                Tables\Columns\TextColumn::make('doctors_count')
+                    ->counts('doctors')
+                    ->alignCenter()
+                    ->disableClick()
+                    ->color('info')
+                    ->label(__('filament::resources.departments.working_doctors'))
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\Action::make('viewContent')
-                    ->label('Xem mô tả')
+                Tables\Actions\Action::make('viewDescription')
+                    ->label(__('filament::resources.departments.description_view'))
                     ->icon('heroicon-o-eye')
-                    ->modalWidth('4xl') // Optional: Make the modal wider
+                    ->color(color: \Filament\Support\Colors\Color::hex('#BDE3C3'))
+                    ->modalWidth('4xl')
                     ->fillForm(fn(Department $record): array => [
                         'description' => $record->desctiption,
                     ])
                     ->infolist([
                         TextEntry::make('description')
-                            ->label('Mô tả về khoa')
+                            ->label(__('filament::resources.description', ['model' => DepartmentResource::getModelLabel()]))
                             ->markdown(),
                     ])
-                    ->modalSubmitAction(false) // Hide the Save/Submit button
+                    ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close')
-                    ->modalAlignment('center'), // Rename the Cancel button
+                    ->modalAlignment('center'),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+
 
             ])
             ->bulkActions([

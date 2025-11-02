@@ -8,6 +8,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -33,6 +34,18 @@ class OfficerPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->navigationGroups(
+                [
+                    NavigationGroup::make()
+                        ->label(
+                            fn() => __('filament::resources.departmenst.group')
+                        ),
+                    NavigationGroup::make()
+                        ->label(fn() => __('filament::charts.patients.group')),
+                    NavigationGroup::make()
+                    ->label(fn() => __('filament::resources.settings.group'))
+                ]
+            )
             ->plugins(
                 [
                     FilamentFullCalendarPlugin::make(),

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,5 +23,22 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         Model::unguard();
+        LanguageSwitch::configureUsing(
+            function (LanguageSwitch $switch) {
+                $switch->locales(['vi', 'en'])
+                ->visible(true, false)
+                ->labels([
+                    'vi' => 'Tiếng Việt',
+                    'en' => 'English'
+                ])
+                ->flags(
+                    [
+                        'vi' => asset('flags/vi.svg'),
+                        'en' => asset('flags/en.svg')
+                    ]
+                )
+                ->circular();
+            }
+        );
     }
 }

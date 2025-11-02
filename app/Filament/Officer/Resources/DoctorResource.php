@@ -26,8 +26,8 @@ use Ysfkaya\FilamentPhoneInput\PhoneInputNumberType;
 class DoctorResource extends Resource
 {
     protected static ?string $model = Doctor::class;
+    protected static ?int $navigationSort = 2;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
 
     public static function getModelLabel(): string
@@ -42,7 +42,7 @@ class DoctorResource extends Resource
     }
     public static function getNavigationLabel(): string
     {
-        return __('filament::resources.navigation_label', ['model' => DoctorResource::getModelLabel()]);
+        return __('filament::resources.doctors.label');
     }
     public static function getNavigationIcon(): string|Htmlable|null
     {
@@ -73,23 +73,23 @@ class DoctorResource extends Resource
                     ->searchable()
                     ->alignCenter()
                     ->disabledClick()
+                    ->weight('bold')
                     ->label(__('filament::resources.id_label')),
                 Tables\Columns\TextColumn::make('fullname')
                     ->searchable()
                     ->sortable()
-                    ->alignCenter()
                     ->disabledClick()
                     ->label(__('filament::resources.fullname')),
-                Tables\Columns\TextColumn::make('user.email')
+                    Tables\Columns\TextColumn::make('user.email')
                     ->searchable()
-                    ->alignCenter()
                     ->copyable()
-                    ->color('primary')
+                    ->alignCenter()
+                    ->color('info')
                     ->label(__('filament::resources.email')),
                 Tables\Columns\TextColumn::make('department.name')
                     ->searchable()
-                    ->alignCenter()
-                    ->label(__('filament::resources.departments.label'))
+                    // ->color('primary')
+                    ->label(__('filament::resources.doctors.belongs_depart'))
                     ->default('-')
 
             ])
@@ -113,6 +113,9 @@ class DoctorResource extends Resource
 
 
                 Tables\Actions\EditAction::make()
+                    ->label(__('filament::resources.doctors.assign'))
+                    ->icon('heroicon-o-user-plus')
+                    ->color('success')
                     ->form(
                         [
                             Forms\Components\TextInput::make('email')
