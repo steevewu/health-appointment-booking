@@ -16,7 +16,8 @@ class ManageSchedule extends Page
 
     protected static string $view = 'filament.patient.resources.doctor-resource.pages.manage-schedule';
 
-    public function mount(int | string $record){
+    public function mount(int|string $record)
+    {
         $this->record = $this->resolveRecord($record);
     }
 
@@ -29,6 +30,16 @@ class ManageSchedule extends Page
                 ]
             )
         ];
+    }
+
+
+    public function getHeading(): string
+    {
+        return __('filament::resources.workshifts.title', ['name' => $this->record->fullname]);
+    }
+    public function getTitle(): string
+    {
+        return __('filament::resources.workshifts.title', ['name' => $this->record->fullname]);
     }
 
 

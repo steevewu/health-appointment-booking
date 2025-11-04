@@ -7,7 +7,7 @@ use DB;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 use Filament\Forms;
 
-class PatientChart extends ApexChartWidget
+class PatientEnrollmentChart extends ApexChartWidget
 {
     protected static ?string $chartId = 'patientChart';
     protected int|string|array $columnSpan = 'full';
@@ -15,13 +15,16 @@ class PatientChart extends ApexChartWidget
     protected static bool $isDiscovered = false;
 
 
-    protected function getHeading(): string|\Illuminate\Contracts\Support\Htmlable|\Illuminate\Contracts\View\View|null
+
+    protected function getHeading(): ?string
     {
-        return __('filament::charts.patient_chart_heading');
+        return __('filament::charts.patients.enrollments.title');
     }
 
-
-
+    protected function getDescription(): ?string
+    {
+        return 'An overview of some analytics.';
+    }
 
 
     protected function getFormSchema(): array
@@ -109,12 +112,12 @@ class PatientChart extends ApexChartWidget
                     ],
                 ],
                 'title' => [
-                    'text' => __('filament::charts.hehe')
+                    'text' => __('filament::charts.patients.enrollments.x-axis')
                 ]
             ],
             'yaxis' => [
                 'title' => [
-                    'text' => __('filament::charts.hehe')
+                    'text' => __('filament::charts.patients.enrollments.y-axis')
                 ],
                 'labels' => [
                     'style' => [
@@ -130,7 +133,7 @@ class PatientChart extends ApexChartWidget
                 'position' => 'top',
                 'horizontalAlign' => 'left',
                 'floating' => true,
-                'offsetY' => -5,
+                'offsetY' => -10,
                 'offsetX' => -5
 
             ],

@@ -21,7 +21,7 @@ class AppointmentHeatmap extends ApexChartWidget
 
     protected function getHeading(): string|\Illuminate\Contracts\Support\Htmlable|\Illuminate\Contracts\View\View|null
     {
-        return __('filament::charts.heeh');
+        return __('filament::charts.appointments.heatmap.title');
     }
 
 

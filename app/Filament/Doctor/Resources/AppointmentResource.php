@@ -29,25 +29,25 @@ class AppointmentResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return __('filament::resources.departments.label');
+        return __('filament::resources.appointments.label');
     }
 
 
     public static function getPluralModelLabel(): string
     {
-        return __('filament::resources.departments.plural_label');
+        return __('filament::resources.appointments.plural_label');
     }
 
 
     public static function getNavigationLabel(): string
     {
-        return __('filament::resources.navigation_label', ['model' => AppointmentResource::getModelLabel()]);
+        return __('filament::resources.appointments.label');
     }
 
 
     public static function getNavigationIcon(): string|Htmlable|null
     {
-        return 'heroicon-o-user-group';
+        return 'heroicon-o-rectangle-stack';
     }
 
 
@@ -74,18 +74,36 @@ class AppointmentResource extends Resource
                     ->label(__('filament::resources.id_label'))
                     ->weight('bold')
                     ->disabledClick(),
+
+
                 Tables\Columns\TextColumn::make('patient.fullname')
-                    ->label(__('filament::resources.full_name'))
+                    ->label(__('filament::resources.full_name', [
+                        'model' => __('filament::resources.patients.label')
+                    ]))
                     ->disableClick()
                     ->searchable(),
+
+
                 Tables\Columns\TextColumn::make('workshift.event.start_at')
                     ->disableClick()
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime('H:i d/m/Y')
+                    ->weight('bold')
                     ->label(__('filament::resources.appointments.start')),
+
+
                 Tables\Columns\TextColumn::make('workshift.event.end_at')
                     ->disableClick()
-                    ->dateTime('d/m/Y H:i')
+                    ->weight('bold')
+                    ->dateTime('H:i d/m/Y')
                     ->label(__(key: 'filament::resources.appointments.end')),
+
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime('H:i d/m/Y')
+                    ->label(__('filament::resources.appointments.created_at'))
+                    ->disableClick(),
+
+
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->disableClick()
@@ -126,8 +144,8 @@ class AppointmentResource extends Resource
                     )
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
-                // Tables\Actions\DeleteAction::make(),
+
+                // appointment confirmation
                 Tables\Actions\Action::make('confirm')
                     ->label(__('filament::resources.appointments.confirm'))
                     ->icon('heroicon-o-check')
@@ -173,6 +191,9 @@ class AppointmentResource extends Resource
                     )
                     ->successNotificationMessage(null)
                     ->failureNotificationMessage(null),
+
+
+                // appointment cancellation
                 Tables\Actions\Action::make('cancel')
                     ->label(__('filament::resources.appointments.cancel'))
                     ->icon('heroicon-o-x-mark')
@@ -201,17 +222,19 @@ class AppointmentResource extends Resource
                     ->requiresConfirmation()
                     ->successNotificationMessage(null)
                     ->failureNotificationMessage(null),
+
+                // create treatment (only available for 'confirmed' appointment)
                 Tables\Actions\Action::make('create-treatment')
                     ->icon('heroicon-o-newspaper')
-                    ->label(__('filament::resources.'))
+                    ->label(__('filament::resources.appointments.treatments.create'))
                     ->form(
                         [
                             Forms\Components\MarkdownEditor::make('notes')
                                 ->nullable()
-                                ->label(__('filament::resources.')),
+                                ->label(__('filament::resources.appointments.treatments.notes')),
                             Forms\Components\MarkdownEditor::make('medication')
                                 ->nullable()
-                                ->label(__('filament::resources.')),
+                                ->label(__('filament::resources.appointments.treatments.medication')),
 
                         ]
                     )
@@ -289,6 +312,7 @@ class AppointmentResource extends Resource
             ->whereHas('workshift', function (Builder $query) use ($doctor) {
                 $query->where('doctor_id', $doctor->id);
             })
-            ->with('workshift.event');
+            ->with('workshift.event')
+            ->orderBy('created_at', 'desc');
     }
 }

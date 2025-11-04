@@ -17,7 +17,7 @@ class PatientAgeChart extends ApexChartWidget
 
     protected function getHeading(): string|\Illuminate\Contracts\Support\Htmlable|\Illuminate\Contracts\View\View|null
     {
-        return __('filament::charts.patient_age_label');
+        return __('filament::charts.patients.ages.title');
     }
 
 

@@ -15,6 +15,15 @@ class ManageSchedule extends Page
 
     protected static ?int $navigationSort = 3;
 
+    public function getTitle(): string|Htmlable
+    {
+        return __('filament::resources.schedule.title');
+    }
+
+    public function getHeading(): Htmlable|string{
+        return __('filament::resources.schedule.title');
+    }
+
     public static function getNavigationLabel(): string
     {
         return __('filament::resources.schedule.label');

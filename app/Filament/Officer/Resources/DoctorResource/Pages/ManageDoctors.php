@@ -12,6 +12,7 @@ use Exception;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRecords;
+use Illuminate\Contracts\Support\Htmlable;
 
 class ManageDoctors extends ManageRecords
 {
@@ -23,4 +24,16 @@ class ManageDoctors extends ManageRecords
         ];
 
     }
+
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('filament::resources.doctors.title');
+    }
+
+    public function getHeading(): Htmlable|string
+    {
+        return __('filament::resources.doctors.title');
+    }
+
 }

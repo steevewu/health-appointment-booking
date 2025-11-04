@@ -16,6 +16,16 @@ class AppointmentStatsPage extends Page
 
     protected static ?int $navigationSort = 2;
 
+    public function getTitle(): string|Htmlable
+    {
+        return __('filament::charts.appointments.title');
+    }
+
+    public function getHeading(): Htmlable|string
+    {
+        return __('filament::charts.appointments.title');
+    }
+
     public static function getNavigationLabel(): string
     {
         return __('filament::charts.appointments.label');

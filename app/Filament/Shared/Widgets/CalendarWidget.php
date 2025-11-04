@@ -61,7 +61,6 @@ class CalendarWidget extends FullCalendarWidget
 
 
         $viewType = Filament::getCurrentPanel()->getId() === 'scheduler' ? 'edit' : 'view';
-
         $this->mountAction(
             $viewType, // default: 'view'
             [
@@ -100,7 +99,7 @@ class CalendarWidget extends FullCalendarWidget
 
                             // check for conflict or overlap event
                             if (Event::isConflict($start, $end))
-                                throw new Exception(__('filament::resources.time_conflict'));
+                                throw new Exception(__('filament::resources.events.time_conflict'));
 
 
                             $doctors = $data['doctors'];
@@ -120,7 +119,7 @@ class CalendarWidget extends FullCalendarWidget
 
                                 // check if doctor already has a workshift on this period
                                 if (Workshift::isConflict($start, $end, $doctor_id))
-                                    throw new Exception(__('filament::resources.doctor_conflict'));
+                                    throw new Exception(__('filament::resources.events.doctor_conflict'));
 
 
                                 $workshift = new Workshift();
@@ -197,7 +196,7 @@ class CalendarWidget extends FullCalendarWidget
                                     );
 
                                     if ($record->isDirty(['start_at', 'end_at']) && Event::isConflict($data['start_at'], $data['end_at']))
-                                        throw new Exception(__('filament::resources.time_conflict'));
+                                        throw new Exception(__('filament::resources.events.time_conflict'));
 
 
 
@@ -237,7 +236,7 @@ class CalendarWidget extends FullCalendarWidget
 
                                             // check if doctor already has a workshift on this period
                                             if (Workshift::isConflict($data['start_at'], $data['end_at'], $doctor_id))
-                                                throw new Exception(__('filament::resources.doctor_conflict' . "{$doctor_id}"));
+                                                throw new Exception(__('filament::resources.events.doctor_conflict' . "{$doctor_id}"));
 
 
                                             $workshift->forceFill(
@@ -306,13 +305,13 @@ class CalendarWidget extends FullCalendarWidget
                     [
                         Forms\Components\TextInput::make('title')
                             ->required()
-                            ->label(__('filament::resources.hehe')),
+                            ->label(__('filament::resources.events.title')),
                         Forms\Components\Select::make('doctors')
                             ->required()
                             ->multiple()
                             ->options(fn() => Doctor::query()->whereNotNull('fullname')->pluck('fullname', 'id')->toArray())
                             ->searchable()
-                            ->label(__('filament::resources.hehe'))
+                            ->label(__('filament::resources.events.doctors'))
                     ]
                 ),
 
@@ -320,18 +319,22 @@ class CalendarWidget extends FullCalendarWidget
                 ->schema([
                     Forms\Components\DateTimePicker::make('start_at')
                         ->native(false)
+                        ->label(__('filament::resources.events.start'))
                         ->format('Y-m-d H:i:00')
                         ->displayFormat('d/m/Y H:i')
                         ->seconds(condition: false),
 
 
                     Forms\Components\DateTimePicker::make('end_at')
+                        ->label(__('filament::resources.events.end'))
                         ->native(false)
                         ->format('Y-m-d H:i:00')
                         ->displayFormat('d/m/Y H:i')
                         ->seconds(false),
                 ]),
             Forms\Components\MarkdownEditor::make('description')
+            ->nullable()
+            ->label(__('filament::resources.events.description'))
         ];
     }
 

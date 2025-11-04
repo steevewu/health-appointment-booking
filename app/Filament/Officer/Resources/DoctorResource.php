@@ -80,17 +80,16 @@ class DoctorResource extends Resource
                     ->sortable()
                     ->disabledClick()
                     ->label(__('filament::resources.fullname')),
-                    Tables\Columns\TextColumn::make('user.email')
-                    ->searchable()
-                    ->copyable()
-                    ->alignCenter()
-                    ->color('info')
-                    ->label(__('filament::resources.email')),
                 Tables\Columns\TextColumn::make('department.name')
                     ->searchable()
                     // ->color('primary')
                     ->label(__('filament::resources.doctors.belongs_depart'))
-                    ->default('-')
+                    ->default('-'),
+                Tables\Columns\TextColumn::make('user.email')
+                    ->searchable()
+                    ->copyable()
+                    ->color('info')
+                    ->label(__('filament::resources.email')),
 
             ])
 

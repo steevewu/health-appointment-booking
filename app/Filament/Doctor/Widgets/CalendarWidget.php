@@ -150,6 +150,11 @@ class CalendarWidget extends FullCalendarWidget
 
 
 
+    protected function headerActions(): array{
+        return [];
+    }
+
+
 
 
 }

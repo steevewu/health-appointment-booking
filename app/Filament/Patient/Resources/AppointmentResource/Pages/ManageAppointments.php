@@ -16,4 +16,15 @@ class ManageAppointments extends ManageRecords
             // Actions\CreateAction::make(),
         ];
     }
+
+
+    public function getHeading(): string
+    {
+        return __('filament::resources.appointments.title');
+    }
+    public function getTitle(): string
+    {
+        return __('filament::resources.appointments.title');
+    }
+
 }

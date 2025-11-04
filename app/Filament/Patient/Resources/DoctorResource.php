@@ -20,6 +20,8 @@ class DoctorResource extends Resource
 {
     protected static ?string $model = Doctor::class;
 
+    protected static ?int $navigationSort = 1;
+
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -36,7 +38,8 @@ class DoctorResource extends Resource
     }
     public static function getNavigationLabel(): string
     {
-        return __('filament::resources.navigation_label', ['model' => DoctorResource::getModelLabel()]);
+        return __('filament::resources.doctors.label');
+
     }
     public static function getNavigationIcon(): string|Htmlable|null
     {
@@ -65,22 +68,22 @@ class DoctorResource extends Resource
 
                 Tables\Columns\TextColumn::make('id')
                     ->label(__('filament::resources.id_label'))
+                    ->alignCenter()
                     ->disableClick()
                     ->weight('bold')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('fullname')
                     ->label(__('filament::resources.fullname'))
-                    // ->disableClick()
-                    ->searchable()
-                    ->alignCenter(),
-                Tables\Columns\TextColumn::make('user.email')
-                    ->label(__('filament::resources.email'))
-                    ->color('primary')
-                    ->copyable(),
+                    ->disableClick()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('department.name')
                     ->label(__('filament::resources.doctors.belongs_depart'))
                     ->disableClick()
-                    ->searchable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('user.email')
+                    ->label(__('filament::resources.email'))
+                    ->color('info')
+                    ->copyable(),
             ])
             ->filters([
                 //
@@ -94,10 +97,12 @@ class DoctorResource extends Resource
                     ->label(__('filament::resources.departments.label'))
             ])
             ->actions([
+
+                // view doctor's resume
                 Tables\Actions\Action::make('view-cv')
-                    ->label('Xem CV')
+                    ->label(__('filament::resources.doctors.view_cv'))
                     ->icon('heroicon-o-eye')
-                    ->modalWidth('4xl')
+                    ->modalWidth('2xl')
                     ->fillForm(fn(Doctor $record): array => [
                         'description' => $record->fullname,
                     ])
@@ -106,11 +111,14 @@ class DoctorResource extends Resource
                             ->hiddenLabel()
                             ->markdown()
                     ])
-                    ->modalSubmitAction(false) 
+                    ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close')
                     ->modalAlignment('center'),
 
+                // appointment booking action
                 Tables\Actions\Action::make('book')
+                    ->color('success')
+                    ->icon('heroicon-o-chat-bubble-left-right')
                     ->url(fn($record) => static::getUrl('book', ['record' => $record]))
                     ->openUrlInNewTab()
             ])

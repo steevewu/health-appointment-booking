@@ -20,28 +20,33 @@ class AppointmentResource extends Resource
 {
     protected static ?string $model = Appointment::class;
 
+    protected static ?int $navigationSort = 2;
+
+
+
 
     public static function getModelLabel(): string
     {
-        return __('filament::resources.departments.label');
+        return __('filament::resources.appointments.label');
     }
 
 
     public static function getPluralModelLabel(): string
     {
-        return __('filament::resources.departments.plural_label');
+        return __('filament::resources.appointments.plural_label');
     }
 
 
     public static function getNavigationLabel(): string
     {
-        return __('filament::resources.navigation_label', ['model' => AppointmentResource::getModelLabel()]);
+        return __('filament::resources.appointments.label');
+
     }
 
 
     public static function getNavigationIcon(): string|Htmlable|null
     {
-        return 'heroicon-o-user-group';
+        return 'heroicon-o-calendar-days';
     }
 
 
@@ -67,18 +72,33 @@ class AppointmentResource extends Resource
                     ->label(__('filament::resources.id_label'))
                     ->weight('bold')
                     ->disabledClick(),
+
+
                 Tables\Columns\TextColumn::make('workshift.doctor.fullname')
                     ->disableClick()
-                    ->label(__('filament::resources.'))
+                    ->label(__('filament::resources.full_name', ['model' => __('filament::resources.doctors.label')]))
                     ->searchable(),
+
+
                 Tables\Columns\TextColumn::make('workshift.event.start_at')
                     ->disableClick()
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime('H:i d/m/Y')
+                    ->weight('bold')
                     ->label(__('filament::resources.appointments.start')),
+
+
                 Tables\Columns\TextColumn::make('workshift.event.end_at')
                     ->disableClick()
-                    ->dateTime('d/m/Y H:i')
+                    ->weight('bold')
+                    ->dateTime('H:i d/m/Y')
                     ->label(__(key: 'filament::resources.appointments.end')),
+
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime('H:i d/m/Y')
+                    ->label(__('filament::resources.appointments.created_at'))
+                    ->disableClick(),
+
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->disableClick()
@@ -113,27 +133,28 @@ class AppointmentResource extends Resource
                 //
             ])
             ->actions([
+
                 Tables\Actions\Action::make('view-treatment')
-                ->label(__('filament::resources.'))
-                ->icon('heroicon-o-clipboard-document-list')
-                ->visible(
-                    fn(Model $record) => $record->status === 'confirmed'
-                )
-                ->infolist(
-                    [
-                        Infolists\Components\TextEntry::make('treatment.notes')
-                        ->label(__('filament::resources.'))
-                        ->default(__('filament::resources.'))
-                        ->markdown(),
-                        Infolists\Components\TextEntry::make('treatment.medication')
-                        ->label(__('filament::resources.'))
-                        ->default(__('filament::resources.'))
-                        ->markdown()
-                    ]
-                )
-                ->modalSubmitAction(false)
-                ->modalAlignment('center')
-                ->modalWidth('xl')
+                    ->label(__('filament::resources.appointments.treatments.view'))
+                    ->icon('heroicon-o-clipboard-document-list')
+                    ->visible(
+                        fn(Model $record) => $record->status === 'confirmed'
+                    )
+                    ->infolist(
+                        [
+                            Infolists\Components\TextEntry::make('treatment.notes')
+                                ->label(__('filament::resources.appointments.treatments.notes'))
+                                ->default('-')
+                                ->markdown(),
+                            Infolists\Components\TextEntry::make('treatment.medication')
+                                ->label(__('filament::resources.appointments.treatments.medication'))
+                                ->default('-')
+                                ->markdown()
+                        ]
+                    )
+                    ->modalSubmitAction(false)
+                    ->modalAlignment('center')
+                    ->modalWidth('xl')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -159,6 +180,7 @@ class AppointmentResource extends Resource
 
         return parent::getEloquentQuery()
             ->where('patient_id', $patient->id)
-            ->with('workshift.event');
+            ->with('workshift.event')
+            ->orderBy('created_at', 'desc');
     }
 }

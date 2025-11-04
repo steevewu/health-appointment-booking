@@ -2,16 +2,21 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Shared\Pages\MyProfilePage;
 use App\Livewire\UserAddress;
 use App\Livewire\UserProfile;
+use Blade;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -32,16 +37,37 @@ class SchedulerPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->navigationItems([
+                NavigationItem::make(fn() => __('filament::resources.logout'))
+                    ->url("javascript:document.querySelector('#logout').submit();")
+                    ->icon('heroicon-m-arrow-left-on-rectangle')
+                    ->sort(100)
+                    ->group(fn() => __('filament::resources.settings.group'))
+            ])
+            ->navigationGroups(
+                [
+                    NavigationGroup::make(
+                        fn() => __('filament::resources.schedule.group')
+                    ),
+                    NavigationGroup::make(
+                        fn() => __('filament::resources.settings.group')
+                    )
+                ]
+            )
+            ->renderHook(PanelsRenderHook::SIDEBAR_NAV_END, function () {
+                return Blade::render('<form action="{{ $logoutLink }}" method="post" id="logout">@csrf</form>', [
+                    'logoutLink' => route('logout'),
+                ]);
+            })
             ->plugins([
                 FilamentFullCalendarPlugin::make()
                     ->selectable()
                     ->editable(),
                 BreezyCore::make()
                     ->myProfile(
-                        shouldRegisterUserMenu:false,
-                        shouldRegisterNavigation:true,
-                        hasAvatars:false,
-                        navigationGroup:'Settings'
+                    )
+                    ->customMyProfilePage(
+                        MyProfilePage::class
                     )
                     ->myProfileComponents(
                         [

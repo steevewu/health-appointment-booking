@@ -4,6 +4,7 @@ namespace App\Filament\Officer\Pages;
 
 use App\Filament\Officer\Widgets\PatientAgeChart;
 use App\Filament\Officer\Widgets\PatientChart;
+use App\Filament\Officer\Widgets\PatientEnrollmentChart;
 use Filament\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
 
@@ -14,6 +15,15 @@ class PatientStatsPage extends Page
 
     protected static ?int $navigationSort = 1;
 
+    public function getTitle(): string|Htmlable
+    {
+        return __('filament::charts.patients.title');
+    }
+
+    public function getHeading(): Htmlable|string
+    {
+        return __('filament::charts.patients.title');
+    }
 
     public static function getNavigationLabel(): string
     {
@@ -33,7 +43,7 @@ class PatientStatsPage extends Page
     public function getHeaderWidgets(): array
     {
         return [
-            PatientChart::make(),
+            PatientEnrollmentChart::make(),
             PatientAgeChart::make()
         ];
     }

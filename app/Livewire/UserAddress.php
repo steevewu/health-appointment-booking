@@ -23,6 +23,7 @@ class UserAddress extends PersonalInfo
 
 
 
+
     public function mount(): void
     {
         parent::mount();
@@ -61,6 +62,7 @@ class UserAddress extends PersonalInfo
     protected function getProvinceComponent(): Forms\Components\Select
     {
         return Forms\Components\Select::make('province_id')
+        ->label(__('filament::resources.province'))
             ->options(
                 function () {
                     $provinces = Http::withHeaders(
@@ -93,7 +95,7 @@ class UserAddress extends PersonalInfo
     protected function getDistrictComponent(): Forms\Components\Select
     {
         return Forms\Components\Select::make('district_id')
-            ->label("Huyen")
+            ->label(__('filament::resources.district'))
             ->options(
                 function (callable $get) {
 
@@ -133,7 +135,7 @@ class UserAddress extends PersonalInfo
     protected function getWardComponent(): Forms\Components\Select
     {
         return Forms\Components\Select::make('ward_id')
-            ->label("Xa")
+            ->label(__('filament::resources.ward'))
             ->options(
                 function (callable $get) {
                     $district = $get('district_id');

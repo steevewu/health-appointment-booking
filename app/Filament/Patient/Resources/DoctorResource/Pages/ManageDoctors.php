@@ -15,4 +15,15 @@ class ManageDoctors extends ManageRecords
         return [
         ];
     }
+
+
+    public function getHeading(): string
+    {
+        return __('filament::resources.doctors.title');
+    }
+    public function getTitle(): string
+    {
+        return __('filament::resources.doctors.title');
+    }
+    
 }
