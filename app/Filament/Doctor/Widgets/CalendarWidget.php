@@ -33,12 +33,10 @@ class CalendarWidget extends FullCalendarWidget
         }
 
 
-        
+
         if ($this->getModel()) {
             $this->record = $this->resolveRecord($event['id']);
         }
-        
-
 
         $this->mountAction(
             'view',
@@ -64,14 +62,21 @@ class CalendarWidget extends FullCalendarWidget
             ->select('events.*')
             ->get()
             ->map(
-                fn(Event $event) => [
-                    'id' => $event->id,
-                    'title' => $event->title,
-                    'start' => $event->start_at,
-                    'end' => $event->end_at,
-                    'description' => $event->description
-                ]
+                // fn(Event $event) => [
+                // ]
 
+                function (Event $event) {
+                    $workshift = $event->workshifts()->where('doctor_id', auth()->user()->doctor->id)->first();
+                    $color = $workshift->isBooked() ? '#FB4141' : '#78C841';
+                    return [
+                        'id' => $event->id,
+                        'title' => $event->title,
+                        'start' => $event->start_at,
+                        'end' => $event->end_at,
+                        'description' => $event->description,
+                        'backgroundColor' => $color
+                    ];
+                }
             )
             ->all();
     }
@@ -112,28 +117,30 @@ class CalendarWidget extends FullCalendarWidget
                 ->schema(
                     [
                         Forms\Components\TextInput::make('title')
-                            ->required()
-                            ->label(__('filament::resources.hehe')),
+                            ->label(__('filament::resources.events.title')),
                         Forms\Components\Select::make('doctors')
-                            ->required()
                             ->multiple()
                             ->options(fn() => Doctor::query()->whereNotNull('fullname')->pluck('fullname', 'id')->toArray())
                             ->searchable()
-                            ->label(__('filament::resources.hehe'))
+                            ->label(__('filament::resources.events.doctors'))
                     ]
                 ),
-
             Forms\Components\Grid::make()
                 ->schema([
                     Forms\Components\DateTimePicker::make('start_at')
-                        ->displayFormat('d M Y H:i')
+                        ->label(__('filament::resources.events.start'))
+                        ->displayFormat('H:i d/m/Y')
+                        ->native(false)
                         ->seconds(false),
 
                     Forms\Components\DateTimePicker::make('end_at')
-                        ->displayFormat('d M Y H:i')
+                        ->label(__('filament::resources.events.end'))
+                        ->displayFormat('H:i d/m/Y')
+                        ->native(false)
                         ->seconds(false),
                 ]),
             Forms\Components\MarkdownEditor::make('description')
+                ->label(__('filament::resources.events.description'))
         ];
     }
 
@@ -150,7 +157,8 @@ class CalendarWidget extends FullCalendarWidget
 
 
 
-    protected function headerActions(): array{
+    protected function headerActions(): array
+    {
         return [];
     }
 

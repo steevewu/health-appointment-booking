@@ -62,7 +62,12 @@ class SchedulerPanelProvider extends PanelProvider
             ->plugins([
                 FilamentFullCalendarPlugin::make()
                     ->selectable()
-                    ->editable(),
+                    ->editable()
+                    ->config(
+                        [
+                            'eventDisplay' => 'block'
+                        ]
+                    ),
                 BreezyCore::make()
                     ->myProfile(
                     )

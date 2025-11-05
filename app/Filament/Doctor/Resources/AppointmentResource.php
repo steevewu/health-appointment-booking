@@ -227,8 +227,22 @@ class AppointmentResource extends Resource
                 Tables\Actions\Action::make('create-treatment')
                     ->icon('heroicon-o-newspaper')
                     ->label(__('filament::resources.appointments.treatments.create'))
+                    ->modalHeading(
+                        fn(Appointment $record) => __('filament::resources.appointments.treatments.heading', ['name' => $record->patient->fullname])
+                    )
                     ->form(
                         [
+                            Forms\Components\TextInput::make('fullname')
+                                ->label(__('filament::resources.full_name', ['model' => __('filament::resources.patients.label')]))
+                                ->disabled(),
+                            Forms\Components\DatePicker::make('date')
+                                ->label(__('filament::resources.appointments.treatments.date'))
+                                ->disabled()
+                                ->displayFormat('H:i d/m/Y')
+                                ->native(false),
+                            Forms\Components\TextInput::make('doctor')
+                                ->label(__('filament::resources.appointments.treatments.doctor'))
+                                ->disabled(),
                             Forms\Components\MarkdownEditor::make('notes')
                                 ->nullable()
                                 ->label(__('filament::resources.appointments.treatments.notes')),
@@ -245,6 +259,9 @@ class AppointmentResource extends Resource
 
                             $form->fill(
                                 [
+                                    'fullname' => $record->patient->fullname,
+                                    'date' => $record->workshift->event->start_at,
+                                    'doctor' => $record->workshift->doctor->fullname,
                                     'notes' => $treatment->notes,
                                     'medication' => $treatment->medication
                                 ]

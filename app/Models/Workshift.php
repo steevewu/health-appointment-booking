@@ -43,10 +43,9 @@ class Workshift extends Model
     }
 
 
-    public function appointments(string|null $status = null): HasOneOrMany
+    public function appointments(): HasOneOrMany
     {
-        return $this->hasMany(Appointment::class, 'workshift_id', 'id')
-            ->where('status', $status ?? 'pending');
+        return $this->hasMany(Appointment::class, 'workshift_id', 'id');
     }
 
 

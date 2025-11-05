@@ -5,10 +5,12 @@ namespace App\Filament\Patient\Widgets;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Event;
+use App\Models\Workshift;
 use App\Notifications\SteeveNotification;
 use DB;
 use Exception;
 use Filament\Forms;
+use Filament\Support\Colors\Color;
 use Saade\FilamentFullCalendar\Actions;
 use Filament\Actions\Action;
 
@@ -28,13 +30,6 @@ class CalendarWidget extends FullCalendarWidget
 
     public int $doctor_id;
 
-
-    // public function __construct(int $doctor_id)
-    // {
-    //     $this->doctor_id = $doctor_id;
-    // }
-
-
     public function fetchEvents(array $fetchInfo): array
     {
 
@@ -46,14 +41,22 @@ class CalendarWidget extends FullCalendarWidget
             ->select(['events.*', 'workshifts.id as workshift_id'])
             ->get()
             ->map(
-                fn(Event $event) => [
-                    'id' => $event->id,
-                    'title' => $event->title,
-                    'start' => $event->start_at,
-                    'end' => $event->end_at,
-                    'description' => $event->description,
-                    'workshift_id' => $event->workshift_id
-                ]
+
+                function (Event $event) {
+                    $workshift = Workshift::where('id', $event->workshift_id)->first();
+                    $color = $workshift->isBooked() ? '#FB4141' : '#78C841';
+                    return
+                        [
+                            'id' => $event->id,
+                            'title' => $event->title,
+                            'start' => $event->start_at,
+                            'end' => $event->end_at,
+                            'description' => $event->description,
+                            'workshift_id' => $event->workshift_id,
+                            'backgroundColor' => $color,
+                            'isBooked' => $workshift->isBooked()
+                        ];
+                }
 
             )
             ->all();
@@ -80,8 +83,12 @@ class CalendarWidget extends FullCalendarWidget
         if ($this->getModel()) {
             $this->record = $this->resolveRecord($event['id']);
         }
+
+        $isBooked = $event['extendedProps']['isBooked'];
+
+        if($isBooked) return;
         $this->mountAction(
-            'edit', // default: 'view'
+            'edit',
             [
                 'type' => 'click',
                 'event' => $event,
@@ -100,18 +107,24 @@ class CalendarWidget extends FullCalendarWidget
                 Actions\EditAction::make()
                     ->modalWidth('xl')
                     ->modalHeading(
-                        __('filament::resources.appointments.heading')
+                        function (array $arguments) {
+                            try {
+                                $workshift = Workshift::where('id', $arguments['event']['extendedProps']['workshift_id'])->firstOrFail();
+
+                                return __('filament::resources.appointments.heading', ['name' => $workshift->doctor->fullname]);
+                            } catch (Exception $e) {
+                                SteeveNotification::sendFailedNotification(message: $e->getMessage());
+                            }
+                        }
                     )
                     ->modalAlignment('center')
                     ->mountUsing(
                         function (Event $record, Forms\Form $form, array $arguments) {
 
-                            // listen on Event's movement and fill in the form
                             $form->fill([
                                 'title' => $record->title,
                                 'start_at' => $arguments['event']['start'] ?? $record->start_at,
                                 'end_at' => $arguments['event']['end'] ?? $record->end_at,
-                                'description' => $record->description,
                                 'workshift_id' => $arguments['event']['extendedProps']['workshift_id']
                             ]);
                         }
@@ -122,17 +135,7 @@ class CalendarWidget extends FullCalendarWidget
                             try {
 
                                 DB::transaction(
-                                    function () use ($data, $record, $action) {
-
-                                        $activeAppointment = Appointment::where('workshift_id', $data['workshift_id'])
-                                            ->whereIn('status', ['pending', 'confirmed'])
-                                            ->lockForUpdate()
-                                            ->first();
-
-
-                                        if (Appointment::isConflict(auth()->user()->patient->id, $data['workshift_id']) || $activeAppointment)
-                                            throw new Exception(__('filament::resources.appointments.conflict'));
-
+                                    function () use ($data) {
 
                                         $appointment = new Appointment(
                                             [
@@ -162,12 +165,6 @@ class CalendarWidget extends FullCalendarWidget
                         }
 
                     )
-                    ->successNotificationMessage(null)
-                    ->modalFooterActions(
-                        [
-
-                        ]
-                    )
                     ->form(
                         [
                             Forms\Components\Hidden::make('workshift_id'),
@@ -175,15 +172,17 @@ class CalendarWidget extends FullCalendarWidget
                                 ->schema([
                                     Forms\Components\DateTimePicker::make('start_at')
                                         ->disabled()
+                                        ->label(__('filament::resources.events.start'))
                                         ->native(false)
                                         ->format('Y-m-d H:i:00')
-                                        ->displayFormat('d/m/Y H:i')
+                                        ->displayFormat('H:i d/m/Y')
                                         ->seconds(condition: false),
                                     Forms\Components\DateTimePicker::make('end_at')
+                                        ->label(__('filament::resources.events.end'))
                                         ->disabled()
                                         ->native(false)
                                         ->format('Y-m-d H:i:00')
-                                        ->displayFormat('d/m/Y H:i')
+                                        ->displayFormat('H:i d/m/Y')
                                         ->seconds(false),
                                 ]),
                             Forms\Components\MarkdownEditor::make('message')
@@ -193,6 +192,9 @@ class CalendarWidget extends FullCalendarWidget
                     ->modalSubmitActionLabel(
                         __('filament::resources.appointments.submit')
                     )
+                    ->failureNotificationMessage(null)
+                    ->successNotificationMessage(null)
+                    ->modalFooterActions([])
             ];
     }
 
@@ -205,7 +207,6 @@ class CalendarWidget extends FullCalendarWidget
         // prevent N+1 issue in query
         return $this->getModel()::with('workshifts')->findOrFail($key);
     }
-
 
 
 

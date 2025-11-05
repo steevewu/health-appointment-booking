@@ -64,7 +64,12 @@ class OfficerPanelProvider extends PanelProvider
             )
             ->plugins(
                 [
-                    FilamentFullCalendarPlugin::make(),
+                    FilamentFullCalendarPlugin::make()
+                        ->config(
+                            [
+                                'eventDisplay' => 'block'
+                            ]
+                        ),
                     BreezyCore::make()
                         ->myProfile(
                         )

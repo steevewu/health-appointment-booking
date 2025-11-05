@@ -79,6 +79,11 @@ class PatientPanelProvider extends PanelProvider
                             ]
                         ),
                     FilamentFullCalendarPlugin::make()
+                        ->config(
+                            [
+                                'eventDisplay' => 'block'
+                            ]
+                        )
                 ]
             )
             ->discoverResources(in: app_path('Filament/Patient/Resources'), for: 'App\\Filament\\Patient\\Resources')

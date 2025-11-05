@@ -39,7 +39,9 @@ class CalendarWidget extends FullCalendarWidget
                     'title' => $event->title,
                     'start' => $event->start_at,
                     'end' => $event->end_at,
-                    'description' => $event->description
+                    'description' => $event->description,
+                    'backgroundColor' => '#FFF1CB',
+                    'textColor' => '#1f1f1f'
                 ]
             )
             ->all();
@@ -319,6 +321,7 @@ class CalendarWidget extends FullCalendarWidget
                 ->schema([
                     Forms\Components\DateTimePicker::make('start_at')
                         ->native(false)
+                        ->required()
                         ->label(__('filament::resources.events.start'))
                         ->format('Y-m-d H:i:00')
                         ->displayFormat('d/m/Y H:i')
@@ -327,6 +330,7 @@ class CalendarWidget extends FullCalendarWidget
 
                     Forms\Components\DateTimePicker::make('end_at')
                         ->label(__('filament::resources.events.end'))
+                        ->required()
                         ->native(false)
                         ->format('Y-m-d H:i:00')
                         ->displayFormat('d/m/Y H:i')
