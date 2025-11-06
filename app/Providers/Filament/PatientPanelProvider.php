@@ -25,6 +25,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 
 class PatientPanelProvider extends PanelProvider
@@ -41,6 +42,9 @@ class PatientPanelProvider extends PanelProvider
                 [
                     NavigationGroup::make(
                         fn() => __('filament::resources.doctors.group')
+                    ),
+                    NavigationGroup::make(
+                        fn() => __('filament::charts.appointments.group')
                     ),
                     NavigationGroup::make(
                         fn() => __('filament::resources.settings.group')
@@ -83,7 +87,8 @@ class PatientPanelProvider extends PanelProvider
                             [
                                 'eventDisplay' => 'block'
                             ]
-                        )
+                        ),
+                    FilamentApexChartsPlugin::make()
                 ]
             )
             ->discoverResources(in: app_path('Filament/Patient/Resources'), for: 'App\\Filament\\Patient\\Resources')
