@@ -105,6 +105,7 @@ class AppointmentResource extends Resource
 
 
                 Tables\Columns\TextColumn::make('status')
+                    ->label(__('filament::resources.appointments.status'))
                     ->badge()
                     ->disableClick()
                     ->getStateUsing(
@@ -238,7 +239,7 @@ class AppointmentResource extends Resource
                             Forms\Components\DatePicker::make('date')
                                 ->label(__('filament::resources.appointments.treatments.date'))
                                 ->disabled()
-                                ->displayFormat('H:i d/m/Y')
+                                ->displayFormat('d/m/Y')
                                 ->native(false),
                             Forms\Components\TextInput::make('doctor')
                                 ->label(__('filament::resources.appointments.treatments.doctor'))
@@ -255,8 +256,6 @@ class AppointmentResource extends Resource
                     ->mountUsing(
                         function (Forms\ComponentContainer $form, Tables\Actions\Action $action, Appointment $record) {
                             $treatment = $record->treatment;
-
-
                             $form->fill(
                                 [
                                     'fullname' => $record->patient->fullname,

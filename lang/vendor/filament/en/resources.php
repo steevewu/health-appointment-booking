@@ -99,6 +99,7 @@ return [
         'created_at' => 'Requested At',
         'already_booked' => 'This Shift Has Already Been Booked!',
         'heading' => 'Schedule An Appointment With Doctor :name',
+        'status' => 'Status',
 
         'treatments' => [
             'create' => 'Edit Medical Record',

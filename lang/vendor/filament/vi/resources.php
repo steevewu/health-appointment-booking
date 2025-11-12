@@ -99,6 +99,7 @@ return [
         'created_at' => 'Yêu Cầu Lúc',
         'already_booked' => 'Ca Trực Này Đã Có Người Đặt Lịch!',
         'heading' => 'Đặt Lịch Thăm Khám Với Bác Sĩ :name',
+        'status' => 'Trạng Thái',
 
         'treatments' => [
             'create' => 'Chỉnh Sửa Bệnh Án',

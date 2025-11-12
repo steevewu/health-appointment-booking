@@ -7,6 +7,7 @@ use App\Filament\Patient\Resources\AppointmentResource\RelationManagers;
 use App\Models\Appointment;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Infolists;
@@ -100,6 +101,9 @@ class AppointmentResource extends Resource
                     ->disableClick(),
 
                 Tables\Columns\TextColumn::make('status')
+                    ->label(
+                        __('filament::resources.appointments.status')
+                    )
                     ->badge()
                     ->disableClick()
                     ->getStateUsing(
@@ -141,16 +145,29 @@ class AppointmentResource extends Resource
                         fn(Model $record) => $record->status === 'confirmed'
                     )
                     ->infolist(
-                        [
-                            Infolists\Components\TextEntry::make('treatment.notes')
-                                ->label(__('filament::resources.appointments.treatments.notes'))
-                                ->default('-')
-                                ->markdown(),
-                            Infolists\Components\TextEntry::make('treatment.medication')
-                                ->label(__('filament::resources.appointments.treatments.medication'))
-                                ->default('-')
-                                ->markdown()
-                        ]
+                        function (Infolist $infolist, Model $record) {
+                            return
+                                [
+                                    Infolists\Components\TextEntry::make('patient.fullname')
+                                        ->label(__('filament::resources.full_name', ['model' => __('filament::resources.patients.label')])),
+                                    Infolists\Components\TextEntry::make('workshift.event.start_at')
+                                        ->dateTime('d/m/Y')
+                                        ->label(__('filament::resources.appointments.treatments.date')),
+                                    Infolists\Components\TextEntry::make('workshift.doctor.fullname')
+                                        ->label(__('filament::resources.appointments.treatments.doctor')),
+                                    Infolists\Components\TextEntry::make('treatment.notes')
+                                        ->label(__('filament::resources.appointments.treatments.notes'))
+                                        ->default('-')
+                                        ->markdown(),
+                                    Infolists\Components\TextEntry::make('treatment.medication')
+                                        ->label(__('filament::resources.appointments.treatments.medication'))
+                                        ->default('-')
+                                        ->markdown()
+                                ];
+                        }
+                    )
+                    ->modalHeading(
+                        fn(Appointment $record) => __('filament::resources.appointments.treatments.heading', ['name' => $record->patient->fullname])
                     )
                     ->modalSubmitAction(false)
                     ->modalAlignment('center')
